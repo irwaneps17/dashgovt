@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Report Pengawalan Project Government</title>
-    <!-- Tailwind CSS untuk Desain Cerah & Modern -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js untuk Grafik Interaktif -->
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Font Awesome untuk Ikon -->
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -99,7 +99,7 @@
 
         <!-- Charts Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Bar Chart: Nilai Project per Witel -->
+            <!-- Bar Chart -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs lg:col-span-2 flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-base font-bold text-slate-900">Distribusi Nilai BC per Witel</h2>
@@ -110,7 +110,7 @@
                 </div>
             </div>
 
-            <!-- Doughnut Chart: Status Progress Project -->
+            <!-- Doughnut Chart -->
             <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-xs flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
                     <h2 class="text-base font-bold text-slate-900">Status Penyelesaian</h2>
@@ -124,7 +124,7 @@
 
     </main>
 
-    <!-- JavaScript untuk Menarik Data Google Sheets Secara Live -->
+    <!-- JavaScript -->
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbxVPzAxmQxlwOH6SAJV17BhOh6Inqz4R7m-479CoYgdhnnD051_1MmWXGGtqa8ojNTMg/exec";
 
@@ -141,6 +141,12 @@
             }
         }
 
+        function parseNumber(val) {
+            if (!val) return 0;
+            let cleanVal = val.toString().replace(/,/g, '');
+            return parseFloat(cleanVal) || 0;
+        }
+
         function processAndRenderDashboard(data) {
             let totalProject = data.length;
             let totalNilaiBC = 0;
@@ -152,8 +158,8 @@
 
             data.forEach(item => {
                 let witel = (item["Witel"] || "Lainnya").toString().trim();
-                let nilaiBC = parseFloat(item["Nilai BC"]) || 0;
-                let nilaiOBL = parseFloat(item["NILAI OBL (exc PPN)"]) || 0;
+                let nilaiBC = parseNumber(item["Nilai BC"]);
+                let nilaiOBL = parseNumber(item["NILAI OBL (exc PPN)"]);
                 let status = (item["Status Solution"] || "").toString().toLowerCase();
 
                 totalNilaiBC += nilaiBC;
@@ -165,25 +171,23 @@
                     totalInProgress++;
                 }
 
-                // Grouping per Witel untuk Grafik Bar
                 if (!witelDataMap[witel]) {
                     witelDataMap[witel] = 0;
                 }
                 witelDataMap[witel] += nilaiBC;
             });
 
-            // Update Angka di Ringkasan Cards
+            // Update Angka di Card
             document.getElementById("valTotalProject").innerText = totalProject;
             document.getElementById("valNilaiBC").innerText = totalNilaiBC.toLocaleString("id-ID");
             document.getElementById("valNilaiOBL").innerText = totalNilaiOBL.toLocaleString("id-ID");
             document.getElementById("valProjectClose").innerText = totalClose;
 
-            // Render Charts dengan Chart.js
+            // Render Charts
             renderCharts(witelDataMap, totalClose, totalInProgress);
         }
 
         function renderCharts(witelMap, closeCount, inProgressCount) {
-            // 1. Bar Chart Witel
             const witelLabels = Object.keys(witelMap);
             const witelValues = Object.values(witelMap);
 
@@ -208,7 +212,6 @@
                 }
             });
 
-            // 2. Doughnut Chart Status
             const ctxDoughnut = document.getElementById('progressDoughnutChart').getContext('2d');
             if (doughnutChartInstance) doughnutChartInstance.destroy();
 
@@ -232,7 +235,6 @@
             });
         }
 
-        // Jalankan fungsi saat halaman selesai dimuat
         document.addEventListener("DOMContentLoaded", fetchGsheetData);
     </script>
 </body>
